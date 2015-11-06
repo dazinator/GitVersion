@@ -38,6 +38,9 @@ public class VersionBumpingScenarios
             fixture.Repository.MakeACommit("+semver:major");
 
             fixture.AssertFullSemver("2.0.0+2");
+
+            fixture.Repository.MakeACommit("+semver:breaking");
+            fixture.AssertFullSemver("3.0.0+3");
         }
 
     }
