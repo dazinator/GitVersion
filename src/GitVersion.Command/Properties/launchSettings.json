@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GitVersion.Command": {
+      "commandName": "GitVersion.Command",
+      "commandLineArgs": "use localrepo print --format Json stamp-assemblyinfo --file GlobalAssemblyInfo.cs"
+    }
+  }
+}

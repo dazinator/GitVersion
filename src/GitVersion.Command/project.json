@@ -1,0 +1,26 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "GitVersion.Command Console Application",
+  "authors": [ "Darrell.Tunnell" ],
+  "tags": [ "" ],
+  "projectUrl": "https://github.com/GitTools/GitVersion",
+  "licenseUrl": "https://github.com/GitTools/GitVersion/blob/master/LICENSE",
+
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": { "CommandLineParser": "1.9.71" },
+
+  "commands": {
+    "GitVersion.Command": "GitVersion.Command"
+  },
+
+  "frameworks": {
+    "dnx451": {
+      "dependencies": {
+        "GitVersionCore": "1.0.0-*"
+      }
+    }   
+  }
+}
