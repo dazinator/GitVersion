@@ -5,6 +5,8 @@
     using System.Diagnostics;
     using System.IO;
     using System.Text;
+    using CommandLine;
+    using CommandLine.Text;
     using GitVersion.Helpers;
 
     public class Program
@@ -20,29 +22,77 @@
                 Console.ReadKey();
             }
 
-            string invokedVerb = null;
-            IVisitableOptions invokedVerbInstance = null;
+            //  string invokedVerb = null;
+            // IVisitableOptions invokedVerbInstance = null;
 
-            var options = new Options();
-            var parser = new CommandLine.Parser(with => with.IgnoreUnknownArguments = true);
-
-            bool parsed = parser.ParseArguments(args, options, (verb, subOptions) =>
-            {
-                invokedVerb = verb;
-                invokedVerbInstance = (IVisitableOptions)subOptions;
-            });
+            // var options = new Options();
+            var parser = new Parser(with => with.IgnoreUnknownArguments = true);
+            var parsedResult = parser.ParseArguments<ConfigureVerb, MsBuildVerb, PrintVersionVerb, SpawnExecutableVerb, StampAssemblyInfoVerb>(args);
 
             StringBuilder log = new StringBuilder();
             Action<string> logAction = s => log.AppendLine(s);
 
-            if (!parsed)
+            if (parsedResult.Tag == ParserResultType.NotParsed)
             {
-                Exit(1, log, true);
+                var helpText = HelpText.AutoBuild(parsedResult);
+
+              //  var help = new CommandLine.Text.HelpText();
+                Exit(1, log, helpText);
                 return;
             }
 
-            var commandVisitor = new CommandVisitor(logAction);
-            invokedVerbInstance.Accept(commandVisitor);
+
+            //  parsedResult.
+
+            //bool parsed = parser.ParseArguments(args, options, (verb, subOptions) =>
+            //{
+            //    invokedVerb = verb;
+            //    invokedVerbInstance = (IVisitableOptions)subOptions;
+            //});
+
+            //if (!parsed)
+            //{
+            //    Exit(1, log, true);
+            //    return;
+            //}
+            var fileSystem = new FileSystem();
+            var commandVisitor = new CommandVisitor(logAction, fileSystem);
+
+
+            // parse the local repo options.
+            parsedResult
+                .WithParsed<ConfigureVerb>(
+                    o => { o.Accept(commandVisitor); });
+
+            // parse the local repo options.
+            parsedResult
+                .WithParsed<MsBuildVerb>(
+                    o => { o.Accept(commandVisitor); });
+
+            parsedResult
+                .WithParsed<PrintVersionVerb>(
+                    o => { o.Accept(commandVisitor); });
+
+            parsedResult
+               .WithParsed<SpawnExecutableVerb>(
+                   o => { o.Accept(commandVisitor); });
+
+            parsedResult
+             .WithParsed<StampAssemblyInfoVerb>(
+                 o => { o.Accept(commandVisitor); });
+
+            //if (!commandVisitor.Success)
+            //{
+            //    Exit(-1, log, false);
+            //}
+
+            //.MapResult(
+            //    (LocalRepositoryOptions opts) => Tuple.Create(header(opts), reader(opts)),
+            //    (RemoteRepositoryOptions opts) => Tuple.Create(header(opts), reader(opts)),
+            //    _ => MakeError());
+
+
+            // options.Accept(commandVisitor);
 
             if (!commandVisitor.Success)
             {
@@ -55,7 +105,7 @@
 
         }
 
-        private static void Exit(int exitCode, StringBuilder log, bool showUsage = false)
+        private static void Exit(int exitCode, StringBuilder log, string showUsageText = null)
         {
             if (exitCode != 0)
             {
@@ -63,11 +113,12 @@
                 Console.Write(log.ToString());
             }
 
-            if (showUsage)
+            if (!string.IsNullOrWhiteSpace(showUsageText))
             {
-                var options = new Options();
-                var helpText = options.GetUsage();
-                Console.Write(helpText);
+                // var options = new Options();
+                // todo:
+                // var helpText = options.GetUsage();
+                  Console.Write(showUsageText);
             }
 
             Environment.Exit(exitCode);
@@ -83,8 +134,8 @@
 
         //private Func<IFileSystem> _fileSystemFactory;
         private IFileSystem _fileSystem;
-        private Options _options;
-        private LocalRepositoryOptions _localRepoOptions;
+        private BaseVerb _verb;
+       // private BaseRepositoryOptions _repoOptions;
 
         public CommandVisitor(Action<string> logAction, IFileSystem fileSystem)
         {
@@ -92,53 +143,50 @@
             _fileSystem = fileSystem;
             Success = false;
         }
+      
 
-        public void Visit(Options options)
+        public void Visit(ConfigureVerb verb)
         {
-            _options = options;
-            SetupLogging(options);
-            options.RepositoryOptions?.Accept(this);
-            options.ConfigOptions?.Accept(this);
-            _options = null;
-        }
-
-        public void Visit(SourceRepositoryOptions options)
-        {
-            options.RemoteRepositoryOptions?.Accept(this);
-            options.LocalRepositoryOptions?.Accept(this);
-        }
-
-        public void Visit(ConfigOptions options)
-        {
-            if (options.Init)
+            _verb = verb;
+            SetupLogging(verb);
+            if (verb.Init)
             {
-                ConfigurationProvider.Init(options.GetPathForConfigYaml(), _fileSystem, new ConsoleAdapter());
+                ConfigurationProvider.Init(verb.GetPathForConfigYaml(), _fileSystem, new ConsoleAdapter());
             }
         }
 
-        public void Visit(PrintVersionOptions options)
+        public void Visit(PrintVersionVerb verb)
         {
+            _verb = verb;
+            SetupLogging(verb);
+            verb.RepositoryOptions.Accept(this);
 
         }
 
-        public void Visit(StampAssemblyInfoOptions options)
+        public void Visit(StampAssemblyInfoVerb verb)
         {
-
+            _verb = verb;
+            SetupLogging(verb);
+            verb.RepositoryOptions.Accept(this);
         }
 
-        public void Visit(MsBuildOptions options)
+        public void Visit(MsBuildVerb verb)
         {
-
+            _verb = verb;
+            SetupLogging(verb);
+            verb.RepositoryOptions.Accept(this);
         }
 
-        public void Visit(SpawnExecutableOptions options)
+        public void Visit(SpawnExecutableVerb verb)
         {
-
+            _verb = verb;
+            SetupLogging(verb);
+            verb.RepositoryOptions.Accept(this);
         }
 
         public void Visit(LocalRepositoryOptions localRepositoryOptions)
         {
-
+            // update git repo etc.
         }
 
         public void Visit(RemoteRepositoryOptions remoteRepositoryOptions)
@@ -148,17 +196,23 @@
             //_localRepoOptions = new LocalRepositoryOptions();
         }
 
+        //public void Visit(LoggingOptions loggingOptions)
+        //{
+
+
+        //}
+
         public bool Success { get; set; }
 
 
-        private void SetupLogging(Options options)
+        private void SetupLogging(BaseVerb options)
         {
             var writeActions = new List<Action<string>>
             {
                 s => _logAction(s)
             };
 
-            if (options.ShouldLogToConsole())
+            if (options.IsConsoleLoggingEnabled())
             {
                 writeActions.Add(Console.WriteLine);
             }
@@ -194,7 +248,7 @@
                 error => writeActions.ForEach(a => a(error)));
         }
 
-        private void WriteLogEntry(Options options, string s)
+        private void WriteLogEntry(BaseVerb options, string s)
         {
             var contents = string.Format("{0}\t\t{1}\r\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), s);
             File.AppendAllText(options.LogFilePath, contents);

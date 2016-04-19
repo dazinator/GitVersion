@@ -2,20 +2,24 @@
 {
     public interface ICommandVisitor
     {
-        void Visit(SourceRepositoryOptions options);
+        // void Visit(InspectRepositoryOptions options);
 
-        void Visit(ConfigOptions options);
+       // void Visit(BaseVersionVerb options);
 
-        void Visit(PrintVersionOptions options);
+        void Visit(ConfigureVerb verb);
 
-        void Visit(StampAssemblyInfoOptions options);
+        void Visit(PrintVersionVerb verb);
 
-        void Visit(MsBuildOptions options);
+        void Visit(StampAssemblyInfoVerb verb);
 
-        void Visit(SpawnExecutableOptions options);
+        void Visit(MsBuildVerb verb);
 
-        void Visit(Options options);
+        void Visit(SpawnExecutableVerb verb);
+
+
         void Visit(LocalRepositoryOptions localRepositoryOptions);
         void Visit(RemoteRepositoryOptions remoteRepositoryOptions);
+       // void Visit(LoggingOptions loggingOptions);
+      //  void Visit(BaseInspectionOptions remoteRepositoryOptions);
     }
 }

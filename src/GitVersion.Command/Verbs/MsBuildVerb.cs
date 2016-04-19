@@ -2,9 +2,11 @@
 {
     using CommandLine;
 
-    public class MsBuildOptions : VisitableCommandOptions
+    [Verb("msbuild", HelpText = "builds an msbuild file, gitversion variables will be passed in as msbuild properties.")]
+
+    public class MsBuildVerb : BaseVersionVerb
     {
-        [Option('p', "projectfile", Required = true, HelpText = "The project file to build with msbuild.")]
+        [Option('m', "project-file", Required = true, HelpText = "The project file to build with msbuild.")]
         public string ProjectFile { get; set; }
 
         [Option('a', "args", Required = false, HelpText = "Additional arguments to pass to MsBuild.")]

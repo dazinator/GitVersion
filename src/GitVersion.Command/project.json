@@ -10,7 +10,7 @@
     "emitEntryPoint": true
   },
 
-  "dependencies": { "CommandLineParser": "1.9.71" },
+  "dependencies": { "CommandLineParser": "2.0.251-beta" },
 
   "commands": {
     "GitVersion.Command": "GitVersion.Command"
@@ -21,6 +21,6 @@
       "dependencies": {
         "GitVersionCore": "1.0.0-*"
       }
-    }   
+    }
   }
 }

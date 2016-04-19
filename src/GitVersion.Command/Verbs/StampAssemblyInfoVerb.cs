@@ -2,7 +2,8 @@
 {
     using CommandLine;
 
-    public class StampAssemblyInfoOptions : VisitableCommandOptions
+    [Verb("stamp-assemblyinfo", HelpText = "stamps the version number within assembly info files.")]
+    public class StampAssemblyInfoVerb : BaseVersionVerb
     {
 
         [Option('f', "file", Required = false, HelpText = "The path or name of an assembly info file to update. If this argument is not specified, then all assembly info files will be updated.")]
@@ -12,5 +13,7 @@
         {
             visitor.Visit(this);
         }
+
+      
     }
 }

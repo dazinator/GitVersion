@@ -2,7 +2,8 @@
 {
     using CommandLine;
 
-    public class RemoteRepositoryOptions : RepositoryOptions
+    [Verb("use-remote-repo", HelpText = "Use a remote repository to procude the version information, by cloning it from the given url, using the given credentials, to a local directory.")]
+    public class RemoteRepositoryOptions : BaseRepositoryOptions
     {
 
         [Option('r', "url", Required = false, HelpText = "The url of the repository.")]

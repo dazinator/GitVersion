@@ -3,8 +3,20 @@ namespace GitVersion.Command
     using System;
     using CommandLine;
 
-    public class LocalRepositoryOptions : RepositoryOptions
+   
+    public class LocalRepositoryOptions : BaseRepositoryOptions
     {
+
+        public LocalRepositoryOptions(string[] args)
+        {
+            this.FilePath = Environment.CurrentDirectory;
+        }
+
+        public LocalRepositoryOptions(string args)
+        {
+            this.FilePath = Environment.CurrentDirectory;
+        }
+
         public LocalRepositoryOptions()
         {
             this.FilePath = Environment.CurrentDirectory;

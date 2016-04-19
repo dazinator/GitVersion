@@ -9,7 +9,7 @@
           "Fody": "1.29.2"
         }
       },
-      "CommandLineParser/1.9.71": {
+      "CommandLineParser/2.0.257-beta": {
         "type": "package",
         "compile": {
           "lib/net45/CommandLine.dll": {}
@@ -87,7 +87,7 @@
           "Fody": "1.29.2"
         }
       },
-      "CommandLineParser/1.9.71": {
+      "CommandLineParser/2.0.257-beta": {
         "type": "package",
         "compile": {
           "lib/net45/CommandLine.dll": {}
@@ -165,7 +165,7 @@
           "Fody": "1.29.2"
         }
       },
-      "CommandLineParser/1.9.71": {
+      "CommandLineParser/2.0.257-beta": {
         "type": "package",
         "compile": {
           "lib/net45/CommandLine.dll": {}
@@ -257,20 +257,17 @@
         "Tools/uninstall.ps1"
       ]
     },
-    "CommandLineParser/1.9.71": {
+    "CommandLineParser/2.0.257-beta": {
       "type": "package",
-      "sha512": "4CHGZZnF5SofNvbdlvusIR42p6CfkiRc3yp6GbtlYRKeVd3KkoBJb4GqFLeOSE7VABTkoHflBw2ULNlaifPjow==",
+      "sha512": "XQTOUughvcqB4MfWxDpcTSSjEXzdy5FN8pRLQZzAn8R+AF7+qj+dxMYPnMu/iBFWIDTko2cbJSfc76Y56Gu3MQ==",
       "files": [
-        "CommandLineParser.1.9.71.nupkg",
-        "CommandLineParser.1.9.71.nupkg.sha512",
+        "CommandLineParser.2.0.257-beta.nupkg",
+        "CommandLineParser.2.0.257-beta.nupkg.sha512",
         "CommandLineParser.nuspec",
-        "lib/net35/CommandLine.dll",
-        "lib/net35/CommandLine.xml",
         "lib/net40/CommandLine.dll",
-        "lib/net40/CommandLine.xml",
+        "lib/net40/CommandLine.XML",
         "lib/net45/CommandLine.dll",
-        "lib/net45/CommandLine.xml",
-        "readme.txt"
+        "lib/net45/CommandLine.XML"
       ]
     },
     "Fody/1.29.3": {
@@ -378,7 +375,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "CommandLineParser >= 1.9.71"
+      "CommandLineParser >= 2.0.251-beta"
     ],
     "DNX,Version=v4.5.1": [
       "GitVersionCore >= 1.0.0-*"
