@@ -1,0 +1,69 @@
+{
+  "version": 2,
+  "exports": {
+    "GitVersionCore/1.0.0": {
+      "type": "project",
+      "framework": ".NETFramework,Version=v4.0",
+      "compile": {
+        "bin/Debug/GitVersionCore.dll": {}
+      },
+      "runtime": {
+        "../packages/GitTools.Core.1.1.0-beta0001/lib/net4/GitTools.Core.dll": {},
+        "../packages/JetBrainsAnnotations.Fody.1.0.4.0/Lib/JetBrains.Annotations.dll": {},
+        "../packages/LibGit2Sharp.0.23.0-pre20150419160303/lib/net40/LibGit2Sharp.dll": {},
+        "../packages/Visualize.Fody.0.4.5.0/lib/portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40/Visualize.dll": {},
+        "../packages/YamlDotNet.3.8.0/lib/net35/YamlDotNet.dll": {},
+        "bin/Debug/GitVersionCore.dll": {}
+      },
+      "contentFiles": {
+        "bin/Debug/GitVersionCore.pdb": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/libgit2sharp.dll.config": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/libgit2sharp.dll.config"
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/linux/x86_64/libgit2-381caf5.so": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/linux/x86_64/libgit2-381caf5.so"
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/osx/libgit2-381caf5.dylib": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/osx/libgit2-381caf5.dylib"
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x64/git2-381caf5.dll": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x64/git2-381caf5.dll"
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x64/git2-381caf5.pdb": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x64/git2-381caf5.pdb"
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x86/git2-381caf5.dll": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x86/git2-381caf5.dll"
+        },
+        "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x86/git2-381caf5.pdb": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true,
+          "outputPath": "e:/repos/gitversion2/src/packages/libgit2sharp.nativebinaries.1.0.137/build//../libgit2/win32/x86/git2-381caf5.pdb"
+        }
+      }
+    }
+  }
+}

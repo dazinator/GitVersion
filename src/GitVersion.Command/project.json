@@ -2,11 +2,13 @@
   "version": "1.0.0-*",
   "description": "GitVersion.Command Console Application",
   "authors": [ "Darrell.Tunnell" ],
-  "tags": [ "" ],
+  "packOptions": {
+
+  },
   "projectUrl": "https://github.com/GitTools/GitVersion",
   "licenseUrl": "https://github.com/GitTools/GitVersion/blob/master/LICENSE",
 
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true
   },
 
@@ -17,7 +19,7 @@
   },
 
   "frameworks": {
-    "dnx451": {
+    "net451": {
       "dependencies": {
         "GitVersionCore": "1.0.0-*"
       }

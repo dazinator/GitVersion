@@ -19,6 +19,41 @@ namespace GitVersion
             gitVersionCache = new GitVersionCache(fileSystem);
         }
 
+
+        public VersionVariables ExecuteGitVersion(GitPreparer preparer, string branch, string commitId, IBuildServer buildServer,  Config overrideConfig = null)
+        {
+            var dotGitDirectory = preparer.GetDotGitDirectory();
+            var projectRoot = preparer.GetProjectRootDirectory();
+           
+
+            Logger.WriteInfo(string.Format("Project root is: {0}", projectRoot));
+            Logger.WriteInfo(string.Format("DotGit directory is: {0}", dotGitDirectory));
+
+            if (string.IsNullOrEmpty(dotGitDirectory) || string.IsNullOrEmpty(projectRoot))
+            {
+                // TODO Link to wiki article
+                throw new Exception(string.Format("Failed to prepare or find the .git directory in path '{0}'.", preparer.WorkingDirectory));
+            }
+
+            var cacheKey = GitVersionCacheKeyFactory.Create(fileSystem, preparer, overrideConfig);
+            var versionVariables = gitVersionCache.LoadVersionVariablesFromDiskCache(preparer, cacheKey);
+            if (versionVariables == null)
+            {
+                versionVariables = ExecuteInternal(branch, commitId, preparer, buildServer, overrideConfig);
+
+                try
+                {
+                    gitVersionCache.WriteVariablesToDiskCache(preparer, cacheKey, versionVariables);
+                }
+                catch (AggregateException e)
+                {
+                    Logger.WriteWarning(string.Format("One or more exceptions during cache write:{0}{1}", Environment.NewLine, e));
+                }
+            }
+
+            return versionVariables;
+        }
+     
         public VersionVariables ExecuteGitVersion(string targetUrl, string dynamicRepositoryLocation, Authentication authentication, string targetBranch, bool noFetch, string workingDirectory, string commitId, Config overrideConfig = null)
         {
             // Normalise if we are running on build server

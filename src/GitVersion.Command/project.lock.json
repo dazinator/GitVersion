@@ -2,14 +2,8 @@
   "locked": false,
   "version": 2,
   "targets": {
-    "DNX,Version=v4.5.1": {
-      "Caseless.Fody/1.3.7": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        }
-      },
-      "CommandLineParser/2.0.257-beta": {
+    ".NETFramework,Version=v4.5.1": {
+      "CommandLineParser/2.0.251-beta": {
         "type": "package",
         "compile": {
           "lib/net45/CommandLine.dll": {}
@@ -17,368 +11,39 @@
         "runtime": {
           "lib/net45/CommandLine.dll": {}
         }
-      },
-      "Fody/1.29.3": {
-        "type": "package"
       },
       "GitVersionCore/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.0",
-        "dependencies": {
-          "Caseless.Fody": "1.3.7",
-          "Fody": "1.29.3",
-          "JetBrainsAnnotations.Fody": "1.0.4",
-          "LibGit2Sharp": "0.21.0.176",
-          "PepitaPackage": "1.21.4",
-          "Visualize.Fody": "0.4.4",
-          "YamlDotNet": "3.6.1"
-        }
-      },
-      "JetBrainsAnnotations.Fody/1.0.4": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        },
-        "compile": {
-          "Lib/JetBrains.Annotations.dll": {}
-        },
-        "runtime": {
-          "Lib/JetBrains.Annotations.dll": {}
-        }
-      },
-      "LibGit2Sharp/0.21.0.176": {
-        "type": "package",
-        "compile": {
-          "lib/net40/LibGit2Sharp.dll": {}
-        },
-        "runtime": {
-          "lib/net40/LibGit2Sharp.dll": {}
-        }
-      },
-      "PepitaPackage/1.21.4": {
-        "type": "package"
-      },
-      "Visualize.Fody/0.4.4": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        },
-        "compile": {
-          "Lib/dotnet/Visualize.dll": {}
-        },
-        "runtime": {
-          "Lib/dotnet/Visualize.dll": {}
-        }
-      },
-      "YamlDotNet/3.6.1": {
-        "type": "package",
-        "compile": {
-          "lib/net35/YamlDotNet.dll": {}
-        },
-        "runtime": {
-          "lib/net35/YamlDotNet.dll": {}
-        }
-      }
-    },
-    "DNX,Version=v4.5.1/win7-x86": {
-      "Caseless.Fody/1.3.7": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        }
-      },
-      "CommandLineParser/2.0.257-beta": {
-        "type": "package",
-        "compile": {
-          "lib/net45/CommandLine.dll": {}
-        },
-        "runtime": {
-          "lib/net45/CommandLine.dll": {}
-        }
-      },
-      "Fody/1.29.3": {
-        "type": "package"
-      },
-      "GitVersionCore/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.0",
-        "dependencies": {
-          "Caseless.Fody": "1.3.7",
-          "Fody": "1.29.3",
-          "JetBrainsAnnotations.Fody": "1.0.4",
-          "LibGit2Sharp": "0.21.0.176",
-          "PepitaPackage": "1.21.4",
-          "Visualize.Fody": "0.4.4",
-          "YamlDotNet": "3.6.1"
-        }
-      },
-      "JetBrainsAnnotations.Fody/1.0.4": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        },
-        "compile": {
-          "Lib/JetBrains.Annotations.dll": {}
-        },
-        "runtime": {
-          "Lib/JetBrains.Annotations.dll": {}
-        }
-      },
-      "LibGit2Sharp/0.21.0.176": {
-        "type": "package",
-        "compile": {
-          "lib/net40/LibGit2Sharp.dll": {}
-        },
-        "runtime": {
-          "lib/net40/LibGit2Sharp.dll": {}
-        }
-      },
-      "PepitaPackage/1.21.4": {
-        "type": "package"
-      },
-      "Visualize.Fody/0.4.4": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        },
-        "compile": {
-          "Lib/dotnet/Visualize.dll": {}
-        },
-        "runtime": {
-          "Lib/dotnet/Visualize.dll": {}
-        }
-      },
-      "YamlDotNet/3.6.1": {
-        "type": "package",
-        "compile": {
-          "lib/net35/YamlDotNet.dll": {}
-        },
-        "runtime": {
-          "lib/net35/YamlDotNet.dll": {}
-        }
-      }
-    },
-    "DNX,Version=v4.5.1/win7-x64": {
-      "Caseless.Fody/1.3.7": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        }
-      },
-      "CommandLineParser/2.0.257-beta": {
-        "type": "package",
-        "compile": {
-          "lib/net45/CommandLine.dll": {}
-        },
-        "runtime": {
-          "lib/net45/CommandLine.dll": {}
-        }
-      },
-      "Fody/1.29.3": {
-        "type": "package"
-      },
-      "GitVersionCore/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.0",
-        "dependencies": {
-          "Caseless.Fody": "1.3.7",
-          "Fody": "1.29.3",
-          "JetBrainsAnnotations.Fody": "1.0.4",
-          "LibGit2Sharp": "0.21.0.176",
-          "PepitaPackage": "1.21.4",
-          "Visualize.Fody": "0.4.4",
-          "YamlDotNet": "3.6.1"
-        }
-      },
-      "JetBrainsAnnotations.Fody/1.0.4": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        },
-        "compile": {
-          "Lib/JetBrains.Annotations.dll": {}
-        },
-        "runtime": {
-          "Lib/JetBrains.Annotations.dll": {}
-        }
-      },
-      "LibGit2Sharp/0.21.0.176": {
-        "type": "package",
-        "compile": {
-          "lib/net40/LibGit2Sharp.dll": {}
-        },
-        "runtime": {
-          "lib/net40/LibGit2Sharp.dll": {}
-        }
-      },
-      "PepitaPackage/1.21.4": {
-        "type": "package"
-      },
-      "Visualize.Fody/0.4.4": {
-        "type": "package",
-        "dependencies": {
-          "Fody": "1.29.2"
-        },
-        "compile": {
-          "Lib/dotnet/Visualize.dll": {}
-        },
-        "runtime": {
-          "Lib/dotnet/Visualize.dll": {}
-        }
-      },
-      "YamlDotNet/3.6.1": {
-        "type": "package",
-        "compile": {
-          "lib/net35/YamlDotNet.dll": {}
-        },
-        "runtime": {
-          "lib/net35/YamlDotNet.dll": {}
-        }
+        "type": "project"
       }
     }
   },
   "libraries": {
+    "CommandLineParser/2.0.251-beta": {
+      "sha512": "euD0DazlK99JatPm3PTWpa32/u3wI6MfarCPIEldsPo72jfWw/niqiRC+dEwvIIxtQ20qPykVvy0HOsW6oA5zA==",
+      "type": "package",
+      "path": "CommandLineParser/2.0.251-beta",
+      "files": [
+        "CommandLineParser.2.0.251-beta.nupkg.sha512",
+        "CommandLineParser.nuspec",
+        "lib/net40/CommandLine.XML",
+        "lib/net40/CommandLine.dll",
+        "lib/net45/CommandLine.XML",
+        "lib/net45/CommandLine.dll"
+      ]
+    },
     "GitVersionCore/1.0.0": {
       "type": "project",
-      "path": "../wrap/GitVersionCore/project.json"
-    },
-    "Caseless.Fody/1.3.7": {
-      "type": "package",
-      "sha512": "6zA94ioYpeZamvfqy9kWrSRVz/OthzCx5j9/KAo0zMxoTCPhJTf3zQjy3ha7LJxF8bEvthAvgan3YRj6/cTqfg==",
-      "files": [
-        "build/dotnet/Caseless.Fody.targets",
-        "Caseless.Fody.1.3.7.nupkg",
-        "Caseless.Fody.1.3.7.nupkg.sha512",
-        "Caseless.Fody.dll",
-        "Caseless.Fody.nuspec",
-        "Caseless.Fody.pdb",
-        "Content/Fody_ToBeDeleted.txt",
-        "Tools/install.ps1",
-        "Tools/uninstall.ps1"
-      ]
-    },
-    "CommandLineParser/2.0.257-beta": {
-      "type": "package",
-      "sha512": "XQTOUughvcqB4MfWxDpcTSSjEXzdy5FN8pRLQZzAn8R+AF7+qj+dxMYPnMu/iBFWIDTko2cbJSfc76Y56Gu3MQ==",
-      "files": [
-        "CommandLineParser.2.0.257-beta.nupkg",
-        "CommandLineParser.2.0.257-beta.nupkg.sha512",
-        "CommandLineParser.nuspec",
-        "lib/net40/CommandLine.dll",
-        "lib/net40/CommandLine.XML",
-        "lib/net45/CommandLine.dll",
-        "lib/net45/CommandLine.XML"
-      ]
-    },
-    "Fody/1.29.3": {
-      "type": "package",
-      "sha512": "I+dC/ez9Tl2QH+YuUhZBoqsMJKk3JzNszHpYSEFHzNBES1C5KcNJJPtc0gRUrQBpCz5x9oxPBfMZaI0UXFg9rw==",
-      "files": [
-        "build/dotnet/Fody.targets",
-        "build/portable-net+sl+win+wpa+wp/Fody.targets",
-        "Content/FodyWeavers.xml",
-        "Fody.1.29.3.nupkg",
-        "Fody.1.29.3.nupkg.sha512",
-        "Fody.dll",
-        "Fody.nuspec",
-        "Fody.pdb",
-        "FodyCommon.dll",
-        "FodyCommon.pdb",
-        "FodyIsolated.dll",
-        "FodyIsolated.pdb",
-        "Mono.Cecil.dll",
-        "Mono.Cecil.Mdb.dll",
-        "Mono.Cecil.Pdb.dll",
-        "Mono.Cecil.Rocks.dll"
-      ]
-    },
-    "JetBrainsAnnotations.Fody/1.0.4": {
-      "type": "package",
-      "sha512": "83c1DDzS5Y6ekZyFPQyaggC31jbAUp3B2GTwq54QkrDrTsZbgZV9PW24srVEOygW2fiym/gyJRR3TNDtze3LUg==",
-      "files": [
-        "JetBrainsAnnotations.Fody.1.0.4.nupkg",
-        "JetBrainsAnnotations.Fody.1.0.4.nupkg.sha512",
-        "JetBrainsAnnotations.Fody.dll",
-        "JetBrainsAnnotations.Fody.nuspec",
-        "JetBrainsAnnotations.Fody.pdb",
-        "Lib/JetBrains.Annotations.dll",
-        "Lib/JetBrains.Annotations.xml",
-        "Tools/install.ps1",
-        "Tools/uninstall.ps1"
-      ]
-    },
-    "LibGit2Sharp/0.21.0.176": {
-      "type": "package",
-      "sha512": "BiHTA0u/PkC89VkjpPhJm9YGHCK5x2dmWhXxW8Dekb2nLEZUlSYsnXMjyrT+iAcIRX8AcQqrKa+o8306guvcXA==",
-      "files": [
-        "App_Readme/libgit2.license.txt",
-        "App_Readme/LibGit2Sharp.CHANGES.md",
-        "App_Readme/LibGit2Sharp.LICENSE.md",
-        "App_Readme/LibGit2Sharp.README.md",
-        "build/net40/LibGit2Sharp.props",
-        "lib/net40/LibGit2Sharp.dll",
-        "lib/net40/LibGit2Sharp.xml",
-        "lib/net40/NativeBinaries/amd64/git2-e0902fb.dll",
-        "lib/net40/NativeBinaries/amd64/git2-e0902fb.pdb",
-        "lib/net40/NativeBinaries/x86/git2-e0902fb.dll",
-        "lib/net40/NativeBinaries/x86/git2-e0902fb.pdb",
-        "LibGit2Sharp.0.21.0.176.nupkg",
-        "LibGit2Sharp.0.21.0.176.nupkg.sha512",
-        "LibGit2Sharp.nuspec"
-      ]
-    },
-    "PepitaPackage/1.21.4": {
-      "type": "package",
-      "sha512": "4z8/xSuLau9m0ROa4MfXEpvrkGzJbQheO4qgTJwIp187MAxdrGUKvELBCG+SYGE8VDT1v+auRDvdXm2UrT/OrA==",
-      "files": [
-        "build/PepitaPackage.targets",
-        "PepitaPackage.1.21.4.nupkg",
-        "PepitaPackage.1.21.4.nupkg.sha512",
-        "PepitaPackage.dll",
-        "PepitaPackage.nuspec",
-        "PepitaPackage.pdb"
-      ]
-    },
-    "Visualize.Fody/0.4.4": {
-      "type": "package",
-      "sha512": "hWf6rtG9kgd7G/iHdnOUPeqfCnPGhyEN6nakMaWJ2uh3OTNu04mI4TNaPWujVtp3tFzULyVkc8/zMOn8uV8KwQ==",
-      "files": [
-        "build/dotnet/Visualize.Fody.targets",
-        "Lib/dotnet/Visualize.dll",
-        "Lib/dotnet/Visualize.xml",
-        "Lib/portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40/Visualize.dll",
-        "Lib/portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40/Visualize.xml",
-        "Tools/install.ps1",
-        "Tools/uninstall.ps1",
-        "Visualize.Fody.0.4.4.nupkg",
-        "Visualize.Fody.0.4.4.nupkg.sha512",
-        "Visualize.Fody.dll",
-        "Visualize.Fody.nuspec",
-        "Visualize.Fody.pdb"
-      ]
-    },
-    "YamlDotNet/3.6.1": {
-      "type": "package",
-      "sha512": "PTyErYBrLBxzOIdmsh7ZwOIu6cZxo9ZjaDXfrFC2Bl1MP28zBUZw2Y6x8JyR4Fx3sQoM+gcB5Gj4XIY0O+2SYA==",
-      "files": [
-        "lib/net35/YamlDotNet.dll",
-        "lib/net35/YamlDotNet.pdb",
-        "lib/net35/YamlDotNet.xml",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/YamlDotNet.dll",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/YamlDotNet.pdb",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/YamlDotNet.xml",
-        "YamlDotNet.3.6.1.nupkg",
-        "YamlDotNet.3.6.1.nupkg.sha512",
-        "YamlDotNet.nuspec"
-      ]
+      "msbuildProject": "../GitVersionCore/GitVersionCore.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "": [
       "CommandLineParser >= 2.0.251-beta"
     ],
-    "DNX,Version=v4.5.1": [
+    ".NETFramework,Version=v4.5.1": [
       "GitVersionCore >= 1.0.0-*"
     ]
-  }
+  },
+  "tools": {},
+  "projectFileToolGroups": {}
 }

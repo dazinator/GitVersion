@@ -1,5 +1,20 @@
 {
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:63643/",
+      "sslPort": 0
+    }
+  },
   "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "GitVersion.Command": {
       "commandName": "GitVersion.Command",
       "commandLineArgs": "stamp-assemblyinfo --use-local-repo --file \"GlobalAssemblyInfo.cs\""

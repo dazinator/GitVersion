@@ -2,12 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Text;
     using CommandLine;
     using CommandLine.Text;
     using GitVersion.Helpers;
+    using System.Linq;
 
     public class Program
     {
@@ -36,7 +38,7 @@
             {
                 var helpText = HelpText.AutoBuild(parsedResult);
 
-              //  var help = new CommandLine.Text.HelpText();
+                //  var help = new CommandLine.Text.HelpText();
                 Exit(1, log, helpText);
                 return;
             }
@@ -118,7 +120,7 @@
                 // var options = new Options();
                 // todo:
                 // var helpText = options.GetUsage();
-                  Console.Write(showUsageText);
+                Console.Write(showUsageText);
             }
 
             Environment.Exit(exitCode);
@@ -131,11 +133,12 @@
     public class CommandVisitor : ICommandVisitor
     {
         private Action<string> _logAction;
-
-        //private Func<IFileSystem> _fileSystemFactory;
+       
         private IFileSystem _fileSystem;
         private BaseVerb _verb;
-       // private BaseRepositoryOptions _repoOptions;
+        private GitPreparer _preparer;
+        private IBuildServer _buildServer;
+        private BaseRepositoryOptions _repoOptions;
 
         public CommandVisitor(Action<string> logAction, IFileSystem fileSystem)
         {
@@ -143,7 +146,7 @@
             _fileSystem = fileSystem;
             Success = false;
         }
-      
+
 
         public void Visit(ConfigureVerb verb)
         {
@@ -152,7 +155,28 @@
             if (verb.Init)
             {
                 ConfigurationProvider.Init(verb.GetPathForConfigYaml(), _fileSystem, new ConsoleAdapter());
+                Success = true;
             }
+            else
+            {
+                var workingDir = verb.GetWorkingDirectory();
+                var configAsString = ConfigurationProvider.GetEffectiveConfigAsString(workingDir, _fileSystem);
+                Logger.WriteInfo(configAsString);
+                Success = true;
+            }
+        }
+
+        protected virtual VersionVariables GetVersionVariables(Config overrideConfig = null)
+        {
+
+            string currentBranch = ResolveCurrentBranch(_buildServer, _repoOptions.Branch, _preparer.IsDynamicGitRepository);
+            _preparer.Initialise(_buildServer != null, currentBranch);
+
+            var core = new ExecuteCore(_fileSystem);
+            var versionVariables = core.ExecuteGitVersion(_preparer, currentBranch, _repoOptions.Commit, _buildServer, overrideConfig);
+
+            return versionVariables;
+
         }
 
         public void Visit(PrintVersionVerb verb)
@@ -161,6 +185,36 @@
             SetupLogging(verb);
             verb.RepositoryOptions.Accept(this);
 
+            var variables = GetVersionVariables();
+
+            if (verb.Format == OutputType.BuildServer)
+            {
+                foreach (var buildServer in BuildServerList.GetApplicableBuildServers())
+                {
+                    buildServer.WriteIntegration(Logger.WriteInfo, variables);
+                }
+            }
+            else if (verb.Format == OutputType.Json)
+            {
+                switch (verb.VariableName)
+                {
+                    case null:
+                        Logger.WriteInfo(JsonOutputFormatter.ToJson(variables));
+                        break;
+
+                    default:
+                        string part;
+                        if (!variables.TryGetValue(verb.VariableName, out part))
+                        {
+                            throw new WarningException(string.Format("'{0}' variable does not exist", verb.VariableName));
+                        }
+                        Console.WriteLine(part);
+                        break;
+                }
+            }
+
+            Success = true;
+
         }
 
         public void Visit(StampAssemblyInfoVerb verb)
@@ -168,6 +222,25 @@
             _verb = verb;
             SetupLogging(verb);
             verb.RepositoryOptions.Accept(this);
+
+            throw new NotImplementedException();
+            //using (var assemblyInfoUpdate = new AssemblyInfoFileUpdate(arguments, targetPath, variables, fileSystem))
+            //{
+            //    var execRun = RunExecCommandIfNeeded(arguments, targetPath, variables);
+            //    var msbuildRun = RunMsBuildIfNeeded(arguments, targetPath, variables);
+            //    if (!execRun && !msbuildRun)
+            //    {
+            //        assemblyInfoUpdate.DoNotRestoreAssemblyInfo();
+            //        //TODO Put warning back
+            //        //if (!context.CurrentBuildServer.IsRunningInBuildAgent())
+            //        //{
+            //        //    Console.WriteLine("WARNING: Not running in build server and /ProjectFile or /Exec arguments not passed");
+            //        //    Console.WriteLine();
+            //        //    Console.WriteLine("Run GitVersion.exe /? for help");
+            //        //}
+            //    }
+            //}
+
         }
 
         public void Visit(MsBuildVerb verb)
@@ -175,6 +248,8 @@
             _verb = verb;
             SetupLogging(verb);
             verb.RepositoryOptions.Accept(this);
+
+            throw new NotImplementedException();
         }
 
         public void Visit(SpawnExecutableVerb verb)
@@ -182,28 +257,54 @@
             _verb = verb;
             SetupLogging(verb);
             verb.RepositoryOptions.Accept(this);
+
+            throw new NotImplementedException();
         }
 
         public void Visit(LocalRepositoryOptions localRepositoryOptions)
         {
             // update git repo etc.
+            var workingDir = _verb.GetWorkingDirectory();
+            var noFetch = ShouldPreventFetch(localRepositoryOptions);
+            _preparer = new GitPreparer(null, null, null, noFetch, workingDir);
+        }
+
+        private bool ShouldPreventFetch(BaseRepositoryOptions repoOptions)
+        {
+            _buildServer = BuildServerList.GetApplicableBuildServers().FirstOrDefault();
+            _repoOptions = repoOptions;
+            return repoOptions.NoFetch || (_buildServer != null && _buildServer.PreventFetch());
         }
 
         public void Visit(RemoteRepositoryOptions remoteRepositoryOptions)
         {
             // clone remote repo, and then intialise local repo options form the destination path.
-            throw new NotImplementedException();
-            //_localRepoOptions = new LocalRepositoryOptions();
+            var auth = new Authentication
+            {
+                Username = remoteRepositoryOptions.Username,
+                Password = remoteRepositoryOptions.Password
+            };
+
+            var workingDir = _verb.GetWorkingDirectory();
+            var noFetch = ShouldPreventFetch(remoteRepositoryOptions);
+            this._preparer = new GitPreparer(remoteRepositoryOptions.Url, remoteRepositoryOptions.DestinationDirectory, auth, noFetch, workingDir);
+
         }
 
-        //public void Visit(LoggingOptions loggingOptions)
-        //{
+        static string ResolveCurrentBranch(IBuildServer buildServer, string targetBranch, bool isDynamicRepo)
+        {
+            if (buildServer == null)
+            {
+                return targetBranch;
+            }
 
 
-        //}
+            var currentBranch = buildServer.GetCurrentBranch(isDynamicRepo) ?? targetBranch;
+            Logger.WriteInfo("Branch from build environment: " + currentBranch);
+            return currentBranch;
+        }
 
         public bool Success { get; set; }
-
 
         private void SetupLogging(BaseVerb options)
         {
