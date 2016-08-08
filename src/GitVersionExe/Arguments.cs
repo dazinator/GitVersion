@@ -1,14 +1,21 @@
 namespace GitVersion
 {
+    using System.Collections.Generic;
+
     public class Arguments
     {
         public Arguments()
         {
             Authentication = new Authentication();
+            OverrideConfig = new Config();
             Output = OutputType.Json;
+            UpdateAssemblyInfoFileName = new HashSet<string>();
         }
 
         public Authentication Authentication;
+
+        public Config OverrideConfig;
+        public bool HasOverrideConfig { get; set; }
 
         public string TargetPath;
 
@@ -24,16 +31,22 @@ namespace GitVersion
         public string ShowVariable;
 
         public OutputType Output;
-        
+
         public string Proj;
         public string ProjArgs;
         public string Exec;
         public string ExecArgs;
 
         public bool UpdateAssemblyInfo;
-        public string UpdateAssemblyInfoFileName;
+        public ISet<string> UpdateAssemblyInfoFileName;
+        public bool EnsureAssemblyInfo;
 
         public bool ShowConfig;
         public bool NoFetch;
+
+        public void AddAssemblyInfoFileName(string fileName)
+        {
+            UpdateAssemblyInfoFileName.Add(fileName);
+        }
     }
 }

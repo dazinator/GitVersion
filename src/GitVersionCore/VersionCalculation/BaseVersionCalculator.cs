@@ -21,13 +21,21 @@
                     .SelectMany(s => s.GetVersions(context))
                     .Where(v =>
                     {
-                        if (v != null)
+                        if (v == null) return false;
+
+                        Logger.WriteInfo(v.ToString());
+
+                        foreach (var filter in context.Configuration.VersionFilters)
                         {
-                            Logger.WriteInfo(v.ToString());
-                            return true;
+                            string reason;
+                            if (filter.Exclude(v, out reason))
+                            {
+                                Logger.WriteInfo(reason);
+                                return false;
+                            }
                         }
 
-                        return false;
+                        return true;
                     })
                     .Select(v => new
                     {
@@ -38,7 +46,7 @@
 
                 var maxVersion = baseVersions.Aggregate((v1, v2) => v1.IncrementedVersion > v2.IncrementedVersion ? v1 : v2);
                 var matchingVersionsOnceIncremented = baseVersions
-                    .Where(b => b != maxVersion && b.Version.BaseVersionSource != null && b.IncrementedVersion == maxVersion.IncrementedVersion)
+                    .Where(b => b.Version.BaseVersionSource != null && b.IncrementedVersion == maxVersion.IncrementedVersion)
                     .ToList();
                 BaseVersion baseVersionWithOldestSource;
                 if (matchingVersionsOnceIncremented.Any())

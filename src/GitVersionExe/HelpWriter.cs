@@ -24,14 +24,20 @@ GitVersion [path]
     /showvariable   Used in conjuntion with /output json, will output just a particular variable. 
                     eg /output json /showvariable SemVer - will output `1.2.3+beta.4`
     /l              Path to logfile.
-    /showconfig     Outputs the effective GitVersion config (defaults + custom from GitVersion.yaml) in yaml format
+    /showconfig     Outputs the effective GitVersion config (defaults + custom from GitVersion.yml) in yaml format
+    /overrideconfig Overrides GitVersion config values inline (semicolon-separated key value pairs e.g. /overrideconfig tag-prefix=Foo)
+                    Currently supported config overrides: tag-prefix
 
     # AssemblyInfo updating
     /updateassemblyinfo
                     Will recursively search for all 'AssemblyInfo.cs' files in the git repo and update them
     /updateassemblyinfofilename
                     Specify name of AssemblyInfo file. Can also /updateAssemblyInfo GlobalAssemblyInfo.cs as a shorthand
-    
+    /ensureassemblyinfo
+                    If the assembly info file specified with /updateassemblyinfo or /updateassemblyinfofilename is not found, 
+                    it be created with these attributes: AssemblyFileVersion, AssemblyVersion and AssemblyInformationalVersion
+                    ---        
+                    Supports writing version info for: C#, F#, VB    
     # Remote repository args
     /url            Url to remote git repository.
     /b              Name of the branch to use on the remote repository, must be used in combination with /url.

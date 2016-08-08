@@ -1,11 +1,14 @@
 namespace GitVersion.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
 
     public class FileSystem : IFileSystem
     {
+        private static readonly bool runningOnMono = Type.GetType("Mono.Runtime") != null;
+
         public void Copy(string @from, string to, bool overwrite)
         {
             File.Copy(from, to, overwrite);
@@ -56,6 +59,11 @@ namespace GitVersion.Helpers
             Directory.CreateDirectory(path);
         }
 
+        public bool DirectoryExists(string path)
+        {
+            return Directory.Exists(path);
+        }
+
         public long GetLastDirectoryWrite(string path)
         {
             return new DirectoryInfo(path)
@@ -64,6 +72,18 @@ namespace GitVersion.Helpers
                 .DefaultIfEmpty()
                 .Max()
                 .Ticks;
+        }
+
+        public bool PathsEqual(string path, string otherPath)
+        {
+            var comparison = runningOnMono
+                ? StringComparison.InvariantCulture
+                : StringComparison.InvariantCultureIgnoreCase;
+
+            return string.Equals(
+                Path.GetFullPath(path).TrimEnd('\\').TrimEnd('/'),
+                Path.GetFullPath(otherPath).TrimEnd('\\').TrimEnd('/'),
+                comparison);
         }
     }
 }

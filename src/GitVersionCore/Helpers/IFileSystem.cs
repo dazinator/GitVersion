@@ -15,6 +15,9 @@ namespace GitVersion.Helpers
         Stream OpenWrite(string path);
         Stream OpenRead(string path);
         void CreateDirectory(string path);
+        bool DirectoryExists(string path);
         long GetLastDirectoryWrite(string path);
+
+        bool PathsEqual(string path, string otherPath);
     }
 }

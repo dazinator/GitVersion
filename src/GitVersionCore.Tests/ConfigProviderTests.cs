@@ -1,25 +1,31 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using GitVersion;
 using GitVersion.Helpers;
 using NUnit.Framework;
 using Shouldly;
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using YamlDotNet.Serialization;
 
 [TestFixture]
 public class ConfigProviderTests
 {
+    private const string DefaultRepoPath = "c:\\MyGitRepo";
+    private const string DefaultWorkingPath = "c:\\MyGitRepo\\Working";
+
     string repoPath;
+    string workingPath;
     IFileSystem fileSystem;
 
     [SetUp]
     public void Setup()
     {
         fileSystem = new TestFileSystem();
-        repoPath = "c:\\MyGitRepo";
+        repoPath = DefaultRepoPath;
+        workingPath = DefaultWorkingPath;
     }
 
     [Test]
@@ -62,7 +68,7 @@ release-branch-tag: rc
 ";
         SetupConfigFileContent(text);
         var error = Should.Throw<OldConfigurationException>(() => ConfigurationProvider.Provide(repoPath, fileSystem));
-        error.Message.ShouldContainWithoutWhitespace(@"GitVersionConfig.yaml contains old configuration, please fix the following errors:
+        error.Message.ShouldContainWithoutWhitespace(@"GitVersion configuration file contains old configuration, please fix the following errors:
 assemblyVersioningScheme has been replaced by assembly-versioning-scheme
 develop-branch-tag has been replaced by branch specific configuration.See http://gitversion.readthedocs.org/en/latest/configuration/#branch-configuration
 release-branch-tag has been replaced by branch specific configuration.See http://gitversion.readthedocs.org/en/latest/configuration/#branch-configuration");
@@ -112,7 +118,7 @@ branches:
         tag: bugfix";
         SetupConfigFileContent(text);
         var config = ConfigurationProvider.Provide(repoPath, fileSystem);
-        
+
         config.Branches["bug[/-]"].Tag.ShouldBe("bugfix");
     }
 
@@ -145,8 +151,10 @@ branches:
 
         config.NextVersion.ShouldBe("2.12.654651698");
     }
-    
+
     [Test]
+    [NUnit.Framework.Category("NoMono")]
+    [NUnit.Framework.Description("Won't run on Mono due to source information not being available for ShouldMatchApproved.")]
     [MethodImpl(MethodImplOptions.NoInlining)]
     public void CanWriteOutEffectiveConfiguration()
     {
@@ -208,7 +216,7 @@ branches: {}";
         var config = ConfigurationProvider.Provide(repoPath, fileSystem);
         config.AssemblyVersioningScheme.ShouldBe(AssemblyVersioningScheme.MajorMinorPatch);
         config.AssemblyInformationalFormat.ShouldBe(null);
-        config.Branches["dev(elop)?(ment)?$"].Tag.ShouldBe("unstable");
+        config.Branches["dev(elop)?(ment)?$"].Tag.ShouldBe("alpha");
         config.Branches["releases?[/-]"].Tag.ShouldBe("beta");
         config.TagPrefix.ShouldBe(ConfigurationProvider.DefaultTagPrefix);
         config.NextVersion.ShouldBe(null);
@@ -226,8 +234,78 @@ branches: {}";
         propertiesMissingAlias.ShouldBeEmpty();
     }
 
-    void SetupConfigFileContent(string text)
+    [TestCase(DefaultRepoPath)]
+    [TestCase(DefaultWorkingPath)]
+    public void WarnOnExistingGitVersionConfigYamlFile(string path)
     {
-        fileSystem.WriteAllText(Path.Combine(repoPath, "GitVersionConfig.yaml"), text);
+        SetupConfigFileContent(string.Empty, ConfigurationProvider.ObsoleteConfigFileName, path);
+
+        var logOutput = string.Empty;
+        Action<string> action = info => { logOutput = info; };
+        using (Logger.AddLoggersTemporarily(action, action, action))
+        {
+            ConfigurationProvider.Verify(workingPath, repoPath, fileSystem);
+        }
+        var configFileDeprecatedWarning = string.Format("{0}' is deprecated, use '{1}' instead", ConfigurationProvider.ObsoleteConfigFileName, ConfigurationProvider.DefaultConfigFileName);
+        logOutput.Contains(configFileDeprecatedWarning).ShouldBe(true);
+    }
+
+    [TestCase(DefaultRepoPath)]
+    [TestCase(DefaultWorkingPath)]
+    public void WarnOnAmbiguousConfigFilesAtTheSameProjectRootDirectory(string path)
+    {
+        SetupConfigFileContent(string.Empty, ConfigurationProvider.ObsoleteConfigFileName, path);
+        SetupConfigFileContent(string.Empty, ConfigurationProvider.DefaultConfigFileName, path);
+
+        var logOutput = string.Empty;
+        Action<string> action = info => { logOutput = info; };
+        Logger.SetLoggers(action, action, action);
+
+        ConfigurationProvider.Verify(workingPath, repoPath, fileSystem);
+
+        var configFileDeprecatedWarning = string.Format("Ambiguous config files at '{0}'", path);
+        logOutput.Contains(configFileDeprecatedWarning).ShouldBe(true);
+    }
+
+    [TestCase(ConfigurationProvider.DefaultConfigFileName, ConfigurationProvider.DefaultConfigFileName)]
+    [TestCase(ConfigurationProvider.DefaultConfigFileName, ConfigurationProvider.ObsoleteConfigFileName)]
+    [TestCase(ConfigurationProvider.ObsoleteConfigFileName, ConfigurationProvider.DefaultConfigFileName)]
+    [TestCase(ConfigurationProvider.ObsoleteConfigFileName, ConfigurationProvider.ObsoleteConfigFileName)]
+    public void ThrowsExceptionOnAmbiguousConfigFileLocation(string repoConfigFile, string workingConfigFile)
+    {
+        var repositoryConfigFilePath = SetupConfigFileContent(string.Empty, repoConfigFile, repoPath);
+        var workingDirectoryConfigFilePath = SetupConfigFileContent(string.Empty, workingConfigFile, workingPath);
+
+        WarningException exception = Should.Throw<WarningException>(() => { ConfigurationProvider.Verify(workingPath, repoPath, fileSystem); });
+
+        var expecedMessage = string.Format("Ambiguous config file selection from '{0}' and '{1}'", workingDirectoryConfigFilePath, repositoryConfigFilePath);
+        exception.Message.ShouldBe(expecedMessage);
+    }
+
+    [Test]
+    public void NoWarnOnGitVersionYmlFile()
+    {
+        SetupConfigFileContent(string.Empty);
+
+        var s = string.Empty;
+        Action<string> action = info => { s = info; };
+        using (Logger.AddLoggersTemporarily(action, action, action))
+        {
+            ConfigurationProvider.Provide(repoPath, fileSystem);
+        }
+        s.Length.ShouldBe(0);
+    }
+
+    string SetupConfigFileContent(string text, string fileName = ConfigurationProvider.DefaultConfigFileName)
+    {
+        return SetupConfigFileContent(text, fileName, repoPath);
+    }
+
+    string SetupConfigFileContent(string text, string fileName, string path)
+    {
+        var fullPath = Path.Combine(path, fileName);
+        fileSystem.WriteAllText(fullPath, text);
+
+        return fullPath;
     }
 }

@@ -4,9 +4,6 @@ namespace GitVersion
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
-    using GitVersion.Helpers;
-
     using JetBrains.Annotations;
 
     using LibGit2Sharp;
@@ -18,33 +15,21 @@ namespace GitVersion
             return commit.Committer.When;
         }
 
-        public static Branch FindBranch(this IRepository repository, string branchName)
-        {
-            var exact = repository.Branches.FirstOrDefault(x => x.Name == branchName);
-            if (exact != null)
-            {
-                return exact;
-            }
-
-            return repository.Branches.FirstOrDefault(x => x.Name == "origin/" + branchName);
-        }
-
-        public static SemanticVersion LastVersionTagOnBranch(this Branch branch, IRepository repository, string tagPrefixRegex)
+        public static IEnumerable<SemanticVersion> GetVersionTagsOnBranch(this Branch branch, IRepository repository, string tagPrefixRegex)
         {
             var tags = repository.Tags.Select(t => t).ToList();
 
             return repository.Commits.QueryBy(new CommitFilter
             {
-                Since = branch.Tip
+                IncludeReachableFrom = branch.Tip
             })
             .SelectMany(c => tags.Where(t => c.Sha == t.Target.Sha).SelectMany(t =>
             {
                 SemanticVersion semver;
-                if (SemanticVersion.TryParse(t.Name, tagPrefixRegex, out semver))
+                if (SemanticVersion.TryParse(t.FriendlyName, tagPrefixRegex, out semver))
                     return new [] { semver };
                 return new SemanticVersion[0];
-            }))
-            .FirstOrDefault();
+            }));
         }
 
 
@@ -61,7 +46,7 @@ namespace GitVersion
             {
                 if (branch.Tip == null)
                 {
-                    Logger.WriteWarning(string.Format(missingTipFormat, branch.Name));
+                    Logger.WriteWarning(string.Format(missingTipFormat, branch.FriendlyName));
                     return null;
                 }
 
@@ -73,42 +58,11 @@ namespace GitVersion
                 {
                     if (otherBranch.Tip == null)
                     {
-                        Logger.WriteWarning(string.Format(missingTipFormat, otherBranch.Name));
+                        Logger.WriteWarning(string.Format(missingTipFormat, otherBranch.FriendlyName));
                         return null;
                     }
 
-                    // Otherbranch tip is a forward merge
-                    var commitToFindCommonBase = otherBranch.Tip;
-                    if (otherBranch.Tip.Parents.Contains(branch.Tip))
-                    {
-                        commitToFindCommonBase = otherBranch.Tip.Parents.First();
-                    }
- 
-                    var findMergeBase = repository.Commits.FindMergeBase(branch.Tip, commitToFindCommonBase);
-                    if (findMergeBase != null)
-                    {
-                        using (Logger.IndentLog(string.Format("Found merge base of {0} against {1}", findMergeBase.Sha, otherBranch.Name)))
-                        {
-                            // We do not want to include merge base commits which got forward merged into the other branch
-                            bool mergeBaseWasFowardMerge;
-                            do
-                            {
-                                // Now make sure that the merge base is not a forward merge
-                                mergeBaseWasFowardMerge = otherBranch.Commits
-                                    .SkipWhile(c => c != commitToFindCommonBase)
-                                    .TakeWhile(c => c != findMergeBase)
-                                    .Any(c => c.Parents.Contains(findMergeBase));
-                                if (mergeBaseWasFowardMerge)
-                                {
-                                    Logger.WriteInfo("Merge base was due to a forward merge, moving to next merge base");
-                                    var second = commitToFindCommonBase.Parents.First();
-                                    var mergeBase = repository.Commits.FindMergeBase(branch.Tip, second);
-                                    if (mergeBase == findMergeBase) break;
-                                    findMergeBase = mergeBase;
-                                }
-                            } while (mergeBaseWasFowardMerge);
-                        }
-                    }
+                    var findMergeBase = FindMergeBase(branch, otherBranch, repository);
                     return new
                     {
                         mergeBaseCommit = findMergeBase,
@@ -125,9 +79,53 @@ namespace GitVersion
             }
         }
 
+        public static Commit FindMergeBase(this Branch branch, Branch otherBranch, IRepository repository)
+        {
+            using (Logger.IndentLog(string.Format("Finding merge base between '{0}' and {1}.", branch.FriendlyName, otherBranch.FriendlyName)))
+            {
+                // Otherbranch tip is a forward merge
+                var commitToFindCommonBase = otherBranch.Tip;
+                var commit = branch.Tip;
+                if (otherBranch.Tip.Parents.Contains(commit))
+                {
+                    commitToFindCommonBase = otherBranch.Tip.Parents.First();
+                }
+
+                var findMergeBase = repository.ObjectDatabase.FindMergeBase(commit, commitToFindCommonBase);
+                if (findMergeBase != null)
+                {
+                    Logger.WriteInfo(string.Format("Found merge base of {0}", findMergeBase.Sha));
+                    // We do not want to include merge base commits which got forward merged into the other branch
+                    bool mergeBaseWasFowardMerge;
+                    do
+                    {
+                        // Now make sure that the merge base is not a forward merge
+                        mergeBaseWasFowardMerge = otherBranch.Commits
+                            .SkipWhile(c => c != commitToFindCommonBase)
+                            .TakeWhile(c => c != findMergeBase)
+                            .Any(c => c.Parents.Contains(findMergeBase));
+                        if (mergeBaseWasFowardMerge)
+                        {
+                            var second = commitToFindCommonBase.Parents.First();
+                            var mergeBase = repository.ObjectDatabase.FindMergeBase(commit, second);
+                            if (mergeBase == findMergeBase)
+                            {
+                                break;
+                            }
+                            findMergeBase = mergeBase;
+                            Logger.WriteInfo(string.Format("Merge base was due to a forward merge, next merge base is {0}", findMergeBase));
+                        }
+                    } while (mergeBaseWasFowardMerge);
+                }
+                return findMergeBase;
+            }
+        }
+
         static bool IsSameBranch(Branch branch, Branch b)
         {
-            return (b.IsRemote ? b.Name.Substring(b.Name.IndexOf("/", StringComparison.Ordinal) + 1) : b.Name) != branch.Name;
+            return (b.IsRemote ? 
+                b.FriendlyName.Substring(b.FriendlyName.IndexOf("/", StringComparison.Ordinal) + 1) : 
+                b.FriendlyName) != branch.FriendlyName;
         }
 
         public static IEnumerable<Branch> GetBranchesContainingCommit([NotNull] this Commit commit, IRepository repository, IList<Branch> branches, bool onlyTrackedBranches)
@@ -137,33 +135,47 @@ namespace GitVersion
                 throw new ArgumentNullException("commit");
             }
 
-            var directBranchHasBeenFound = false;
-            foreach (var branch in branches)
+            using (Logger.IndentLog(string.Format("Getting branches containing the commit '{0}'.", commit.Id)))
             {
-                if (branch.Tip != null && branch.Tip.Sha != commit.Sha || (onlyTrackedBranches && !branch.IsTracking))
+                var directBranchHasBeenFound = false;
+                Logger.WriteInfo("Trying to find direct branches.");
+                // TODO: It looks wasteful looping through the branches twice. Can't these loops be merged somehow? @asbjornu
+                foreach (var branch in branches)
                 {
-                    continue;
+                    if (branch.Tip != null && branch.Tip.Sha != commit.Sha || (onlyTrackedBranches && !branch.IsTracking))
+                    {
+                        continue;
+                    }
+
+                    directBranchHasBeenFound = true;
+                    Logger.WriteInfo(string.Format("Direct branch found: '{0}'.", branch.FriendlyName));
+                    yield return branch;
                 }
 
-                directBranchHasBeenFound = true;
-                yield return branch;
-            }
-
-            if (directBranchHasBeenFound)
-            {
-                yield break;
-            }
-
-            foreach (var branch in branches.Where(b => (onlyTrackedBranches && !b.IsTracking)))
-            {
-                var commits = repository.Commits.QueryBy(new CommitFilter { Since = branch }).Where(c => c.Sha == commit.Sha);
-
-                if (!commits.Any())
+                if (directBranchHasBeenFound)
                 {
-                    continue;
+                    yield break;
                 }
 
-                yield return branch;
+                Logger.WriteInfo(string.Format("No direct branches found, searching through {0} branches.", onlyTrackedBranches ? "tracked" : "all"));
+                foreach (var branch in branches.Where(b => onlyTrackedBranches && !b.IsTracking))
+                {
+                    Logger.WriteInfo(string.Format("Searching for commits reachable from '{0}'.", branch.FriendlyName));
+
+                    var commits = repository.Commits.QueryBy(new CommitFilter
+                    {
+                        IncludeReachableFrom = branch
+                    }).Where(c => c.Sha == commit.Sha);
+
+                    if (!commits.Any())
+                    {
+                        Logger.WriteInfo(string.Format("The branch '{0}' has no matching commits.", branch.FriendlyName));
+                        continue;
+                    }
+
+                    Logger.WriteInfo(string.Format("The branch '{0}' has a matching commit.", branch.FriendlyName));
+                    yield return branch;
+                }
             }
         }
 
@@ -200,12 +212,12 @@ namespace GitVersion
         {
             var gitDirectory = repository.Info.Path;
 
-            gitDirectory = gitDirectory.TrimEnd('\\');
+            gitDirectory = gitDirectory.TrimEnd(Path.DirectorySeparatorChar);
 
             if (omitGitPostFix && gitDirectory.EndsWith(".git"))
             {
                 gitDirectory = gitDirectory.Substring(0, gitDirectory.Length - ".git".Length);
-                gitDirectory = gitDirectory.TrimEnd('\\');
+                gitDirectory = gitDirectory.TrimEnd(Path.DirectorySeparatorChar);
             }
 
             return gitDirectory;
@@ -249,38 +261,6 @@ namespace GitVersion
                     Logger.WriteWarning(string.Format("  An error occurred while checking out '{0}': '{1}'", fileName, ex.Message));
                 }
             }
-        }
-
-        public static void DumpGraph(this IRepository repository, Action<string> writer = null, int? maxCommits = null)
-        {
-            DumpGraph(repository.Info.Path, writer, maxCommits);
-        }
-
-        public static void DumpGraph(string workingDirectory, Action<string> writer = null, int? maxCommits = null)
-        {
-            var output = new StringBuilder();
-
-            try
-            {
-                ProcessHelper.Run(
-                    o => output.AppendLine(o),
-                    e => output.AppendLineFormat("ERROR: {0}", e),
-                    null,
-                    "git",
-                    @"log --graph --format=""%h %cr %d"" --decorate --date=relative --all --remotes=*" + (maxCommits != null ? string.Format(" -n {0}", maxCommits) : null),
-                    //@"log --graph --abbrev-commit --decorate --date=relative --all --remotes=*",
-                    workingDirectory);
-            }
-            catch (FileNotFoundException exception)
-            {
-                if (exception.FileName != "git")
-                    throw;
-
-                output.AppendLine("Unable to display git log (due to 'git' not being on the %PATH%), this is just for debugging purposes to give more information to track down your issue. Run gitversion debug locally instead.");
-            }
-
-            if (writer != null) writer(output.ToString());
-            else Console.Write(output.ToString());
         }
     }
 }

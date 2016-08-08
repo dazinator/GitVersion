@@ -1,6 +1,7 @@
 ﻿namespace GitVersionTask
 {
     using System;
+    using System.ComponentModel;
     using System.IO;
     using System.Text;
 
@@ -8,6 +9,7 @@
 
     using Microsoft.Build.Framework;
 
+    // TODO: Consolidate this with GitVersion.AssemblyInfoFileUpdate in GitVersionExe. @asbjornu
     public class UpdateAssemblyInfo : GitVersionTaskBase
     {
         TaskLogger logger;
@@ -80,17 +82,18 @@
 
         void CreateTempAssemblyInfo(VersionVariables versionVariables)
         {
+            var assemblyInfoBuilder = AssemblyInfoBuilder.GetAssemblyInfoBuilder(CompileFiles);
+
             if (IntermediateOutputPath == null)
             {
-                var tempFileName = string.Format("AssemblyInfo_{0}_{1}.g.cs", Path.GetFileNameWithoutExtension(ProjectFile), Path.GetRandomFileName());
+                var tempFileName = string.Format("AssemblyInfo_{0}_{1}.g.{2}", Path.GetFileNameWithoutExtension(ProjectFile), Path.GetRandomFileName(), assemblyInfoBuilder.AssemblyInfoExtension);
                 AssemblyInfoTempFilePath = Path.Combine(TempFileTracker.TempPath, tempFileName);
             }
             else
             {
-                AssemblyInfoTempFilePath = Path.Combine(IntermediateOutputPath, "GitVersionTaskAssemblyInfo.g.cs");
+                AssemblyInfoTempFilePath = Path.Combine(IntermediateOutputPath, string.Format("GitVersionTaskAssemblyInfo.g.{0}", assemblyInfoBuilder.AssemblyInfoExtension));
             }
 
-            var assemblyInfoBuilder = new AssemblyInfoBuilder();
             var assemblyInfo = assemblyInfoBuilder.GetAssemblyInfoText(versionVariables, RootNamespace).Trim();
 
             // We need to try to read the existing text first if the file exists and see if it's the same

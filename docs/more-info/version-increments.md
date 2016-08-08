@@ -12,9 +12,9 @@ This causes problems for people as NuGet and other package managers do not suppo
 There are a few ways to handle this problem depending on what your requirements are:
 
 ### 1. GitFlow
-If you are using GitFlow then builds off the `develop` branch will actually *increment on every commit*. This is known in GitVersion as *continuous deployment mode*. By default `develop` builds are tagged with the `unstable` pre-release tag. This is so they are sorted higher than release branches.
+If you are using GitFlow then builds off the `develop` branch will actually *increment on every commit*. This is known in GitVersion as *continuous deployment mode*. By default `develop` builds are tagged with the `alpha` pre-release tag. This is so they are sorted higher than release branches.
 
-If you need to consume packages built from develop, we recommend publishing these packages to a separate NuGet feed as an alpha channel. That way you can publish beta/release candidate builds and only people who opt into the alpha feed will see the unstable packages.
+If you need to consume packages built from develop, we recommend publishing these packages to a separate NuGet feed as an alpha channel. That way you can publish beta/release candidate builds and only people who opt into the alpha feed will see the alpha packages.
 
 ### 2. Octopus deploy
 See [Octopus deploy](../build-server-support/build-server/octopus-deploy.md)
@@ -39,8 +39,8 @@ The options for `commit-message-incrementing` are `Enabled`, `MergeMessageOnly` 
 
 If the incrementing mode is set to `MergeMessageOnly` you can add this information in when merging a pull request. This prevents commits within a PR bumping the version.
 
-### GitVersionConfig.yaml
-The first is by setting the `next-version` property in the GitVersionConfig.yaml file. This property only serves as a base version,
+### GitVersion.yml
+The first is by setting the `next-version` property in the GitVersion.yml file. This property only serves as a base version,
 
 ### Branch name
 If you create a branch with the version number in the branch name such as `release-1.2.0` or `hotfix/1.0.1` then GitVersion will take the version number from the branch name as a source
