@@ -26,7 +26,7 @@ void Build(string configuration, string nugetVersion, string semVersion, string 
     MSBuild("./src/GitVersion.sln", settings =>
 	{
 	 settings.SetConfiguration(configuration)
-        .SetVerbosity(Verbosity.Minimal)
+        .SetVerbosity(Verbosity.Normal)
         .WithTarget("Build")
         .WithProperty("POSIX",IsRunningOnUnix().ToString());
 		
